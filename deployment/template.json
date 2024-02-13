@@ -1,0 +1,64 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "vaults_dohoney_west_name": {
+            "defaultValue": "dohoney-west",
+            "type": "String"
+        },
+        "loadtests_key_vault_simple_load_name": {
+            "defaultValue": "key-vault-simple-load",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.KeyVault/vaults",
+            "apiVersion": "2023-07-01",
+            "name": "[parameters('vaults_dohoney_west_name')]",
+            "location": "westus",
+            "properties": {
+                "sku": {
+                    "family": "A",
+                    "name": "Standard"
+                },
+                "tenantId": "b3fe4373-998c-46ee-93bb-5d77802e219a",
+                "accessPolicies": [],
+                "enabledForDeployment": false,
+                "enabledForDiskEncryption": false,
+                "enabledForTemplateDeployment": false,
+                "enableSoftDelete": true,
+                "softDeleteRetentionInDays": 90,
+                "enableRbacAuthorization": true,
+                "vaultUri": "[concat('https://', parameters('vaults_dohoney_west_name'), '.vault.azure.net/')]",
+                "provisioningState": "Succeeded",
+                "publicNetworkAccess": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.LoadTestService/loadtests",
+            "apiVersion": "2022-12-01",
+            "name": "[parameters('loadtests_key_vault_simple_load_name')]",
+            "location": "westus3",
+            "identity": {
+                "type": "None"
+            },
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults/secrets",
+            "apiVersion": "2023-07-01",
+            "name": "[concat(parameters('vaults_dohoney_west_name'), '/mysecret')]",
+            "location": "westus",
+            "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('vaults_dohoney_west_name'))]"
+            ],
+            "properties": {
+                "attributes": {
+                    "enabled": true
+                }
+            }
+        }
+    ]
+}
